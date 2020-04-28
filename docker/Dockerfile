@@ -1,0 +1,27 @@
+FROM alpine:3.10
+
+ENV APP_VERSION=5.9.0
+ENV PATH="/mattermost-push-proxy/bin:${PATH}"
+
+# Install some needed packages
+RUN apk add --no-cache\
+      netcat-openbsd \
+      ca-certificates
+
+RUN mkdir -p /mattermost-push-proxy \
+    && cd /mattermost-push-proxy \
+    && wget https://github.com/mattermost/mattermost-push-proxy/releases/download/v$APP_VERSION/mattermost-push-proxy-$APP_VERSION.tar.gz \
+    && tar -xvzf mattermost-push-proxy-$APP_VERSION.tar.gz \
+    && rm mattermost-push-proxy-$APP_VERSION.tar.gz \
+    && mv mattermost-push-proxy/* ./ \
+    && rm -rf mattermost-push-proxy
+
+WORKDIR /mattermost-push-proxy
+
+COPY entrypoint.sh /
+
+EXPOSE 8066
+
+VOLUME ["/mattermost-push-proxy", "/config", "/certs"]
+
+ENTRYPOINT ["/entrypoint.sh"]

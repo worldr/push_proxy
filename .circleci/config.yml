@@ -28,6 +28,8 @@ jobs:
       - checkout
       - run: make build-server
       - run: make package
+      - store_artifacts:
+          path: /go/src/github.com/worldr/push-proxy/dist/mattermost-push-proxy.tar.gz
       - persist_to_workspace:
           root: .
           paths: ./dist/mattermost-push-proxy.tar.gz

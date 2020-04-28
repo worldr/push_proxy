@@ -96,7 +96,7 @@ workflows:
             branches:
               ignore: /.*/
       - publish-github-release:
-          context: matterbuild-github-token
+          context: worldr-build-github-token
           requires:
             - build
           filters:

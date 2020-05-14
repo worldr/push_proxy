@@ -68,3 +68,4 @@ tags
 
 # Ignore binary
 /mattermost-push-proxy
+/config/worldr-push-proxy.json

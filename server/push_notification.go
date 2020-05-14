@@ -65,6 +65,7 @@ func PushNotificationFromJson(data io.Reader) *PushNotification {
 	decoder := json.NewDecoder(data)
 	var me PushNotification
 	err := decoder.Decode(&me)
+
 	if err == nil {
 		return &me
 	} else {

@@ -10,13 +10,13 @@
 			"ApplePushUseDevelopment": true,
 			"ApplePushCertPrivate": "",
 			"ApplePushCertPassword": "",
-			"ApplePushTopic": "com.mattermost.Mattermost"
+			"ApplePushTopic": ""
 		}
 	],
 	"AndroidPushSettings": [
 		{
 			"Type": "android",
-			"AndroidApiKey": "AAAA-JFVjJk:APA91bF1AlH1I8iSPPWnhYIOBfWPHLeQbqzXRQLnZb0hQ_DEvGXg-DjEid0gi6Oh7F3GCLyQ7TIw_v06nZFQk9Qm5x1DZJGB3tgBg10y2HrI9SASolTnzrohj4MOV7ohyd9yFawgvMLC"
+			"AndroidApiKey": ""
 		}
 	]
 }

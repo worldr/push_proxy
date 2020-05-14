@@ -33,11 +33,12 @@ func (me *AndroidNotificationServer) Initialize() bool {
 func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) PushResponse {
 	pushType := msg.Type
 	data := map[string]interface{}{
-		"ack_id":     msg.AckId,
-		"type":       pushType,
-		"badge":      msg.Badge,
-		"version":    msg.Version,
-		"channel_id": msg.ChannelId,
+		"ack_id":       msg.AckId,
+		"type":         pushType,
+		"badge":        msg.Badge,
+		"version":      msg.Version,
+		"channel_id":   msg.ChannelId,
+		"click_action": "FLUTTER_NOTIFICATION_CLICK",
 	}
 
 	if msg.IsIdLoaded {
@@ -66,6 +67,10 @@ func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) Pus
 		Data:     data,
 		Priority: "high",
 	}
+	(*fcmMsg).Notification = &fcm.Notification{
+		Title: fmt.Sprintf("New message in %s", msg.ChannelName),
+		Body:  emoji.Sprint(msg.Message),
+	}
 
 	if len(me.AndroidPushSettings.AndroidApiKey) > 0 {
 		sender, err := fcm.NewClient(me.AndroidPushSettings.AndroidApiKey)
@@ -77,6 +82,12 @@ func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) Pus
 		LogInfo(fmt.Sprintf("Sending android push notification for device=%v and type=%v", me.AndroidPushSettings.Type, msg.Type))
 
 		start := time.Now()
+
+		// test, testErr := json.Marshal(fcmMsg)
+		// if testErr == nil {
+		// fmt.Println(fmt.Sprintf("SendNotification: %s", string(test)))
+		// }
+
 		resp, err := sender.SendWithRetry(fcmMsg, 2)
 		observerNotificationResponse(PUSH_NOTIFY_ANDROID, time.Since(start).Seconds())
 

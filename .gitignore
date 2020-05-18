@@ -66,4 +66,4 @@ tags
 *.cer
 *.p12
 
-/worldr-push-proxy.json
+config/worldr-push-proxy.json

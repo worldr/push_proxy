@@ -28,6 +28,7 @@ type PushNotificationAck struct {
 }
 
 type PushNotification struct {
+	ServerTag        string `json:"server_tag"`
 	Id               string `json:"id"`
 	AckId            string `json:"ack_id"`
 	Platform         string `json:"platform"`

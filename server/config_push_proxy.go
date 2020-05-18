@@ -15,19 +15,12 @@ type ConfigPushProxy struct {
 	ThrottleMemoryStoreSize int
 	ThrottleVaryByHeader    string
 	EnableMetrics           bool
-	ApplePushSettings       []ApplePushSettings
 	AndroidPushSettings     []AndroidPushSettings
 }
 
-type ApplePushSettings struct {
-	Type                    string
-	ApplePushUseDevelopment bool
-	ApplePushCertPrivate    string
-	ApplePushCertPassword   string
-	ApplePushTopic          string
-}
-
 type AndroidPushSettings struct {
+	Tag           string
+	Default       bool
 	Type          string
 	AndroidApiKey string
 }

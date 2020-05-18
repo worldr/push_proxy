@@ -28,10 +28,12 @@ const (
 
 type NotificationServer interface {
 	SendNotification(msg *PushNotification) PushResponse
+	SendNotification1(msg *PushNotification) PushResponse
 	Initialize() bool
 }
 
 var servers map[string]NotificationServer = make(map[string]NotificationServer)
+var defaultServer *NotificationServer
 
 var gracefulServer *graceful.Server
 
@@ -43,18 +45,31 @@ func Start() {
 		LogInfo(fmt.Sprintf("Proxy server detected. Routing all requests through: %s", proxyServer))
 	}
 
-	for _, settings := range CfgPP.ApplePushSettings {
-		server := NewAppleNotificationServer(settings)
-		if server.Initialize() {
-			servers[settings.Type] = server
-		}
-	}
-
 	for _, settings := range CfgPP.AndroidPushSettings {
 		server := NewAndroideNotificationServer(settings)
 		if server.Initialize() {
-			servers[settings.Type] = server
+			servers[settings.Tag] = server
+			if settings.Default {
+				LogInfo(fmt.Sprintf("Default server is '%s'", settings.Tag))
+				defaultServer = &server
+			}
 		}
+	}
+	if len(servers) > 0 {
+		if defaultServer == nil {
+			tag := CfgPP.AndroidPushSettings[0].Tag
+			s, exists := servers[tag]
+			if exists {
+				defaultServer = &s
+				LogInfo(fmt.Sprintf("No notification server was marked as default, using the first one: '%s'", tag))
+			} else {
+				LogError(fmt.Sprintf("Server '%s' was not properly initialized!", tag))
+			}
+		}
+	}
+
+	if defaultServer == nil {
+		panic("No notification servers were added by configuration!")
 	}
 
 	router := mux.NewRouter()
@@ -111,7 +126,7 @@ func Stop() {
 }
 
 func root(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("<html><body>Mattermost Push Proxy</body></html>"))
+	w.Write([]byte("<html><body>Worldr</body></html>"))
 }
 
 func responseTimeMiddleware(f func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
@@ -150,12 +165,18 @@ func handleSendNotification(w http.ResponseWriter, r *http.Request) {
 		msg.Message = msg.Message[0:2046]
 	}
 
-	if server, ok := servers[msg.Platform]; ok {
+	server, exists := servers[msg.ServerTag]
+	if !exists {
+		LogError(fmt.Sprintf("Server '%s' is not configured or no ServerTag property present. Using default.", msg.ServerTag))
+		server = *defaultServer
+	}
+
+	if server != nil {
 		rMsg := server.SendNotification(msg)
 		w.Write([]byte(rMsg.ToJson()))
 		return
 	} else {
-		rMsg := LogError(fmt.Sprintf("Did not send message because of missing platform property type=%v serverId=%v", msg.Platform, msg.ServerId))
+		rMsg := LogError(fmt.Sprintf("Did not send message because of missing server for ServerTag=%v serverId=%v", msg.ServerTag, msg.ServerId))
 		w.Write([]byte(rMsg.ToJson()))
 		incrementBadRequest()
 		return

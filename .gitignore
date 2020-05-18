@@ -66,6 +66,4 @@ tags
 *.cer
 *.p12
 
-# Ignore binary
-/mattermost-push-proxy
-/config/worldr-push-proxy.json
+/worldr-push-proxy.json

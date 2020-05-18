@@ -11,7 +11,7 @@ import (
 )
 
 func TestBasicServer(t *testing.T) {
-	LoadConfig("mattermost-push-proxy.json")
+	LoadConfig("template-push-proxy.json")
 	Start()
 	time.Sleep(time.Second * 2)
 
@@ -63,7 +63,7 @@ func TestBasicServer(t *testing.T) {
 }
 
 func TestAndroidSend(t *testing.T) {
-	LoadConfig("mattermost-push-proxy.json")
+	LoadConfig("template-push-proxy.json")
 	CfgPP.AndroidPushSettings[0].AndroidApiKey = "junk"
 	Start()
 	time.Sleep(time.Second * 2)

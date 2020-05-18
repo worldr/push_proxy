@@ -1,0 +1,34 @@
+{
+	"ListenAddress": ":8066",
+	"ThrottlePerSec": 300,
+	"ThrottleMemoryStoreSize": 50000,
+	"ThrottleVaryByHeader": "X-Forwarded-For",
+	"EnableMetrics": false,
+	"ApplePushSettings": [
+		{
+			"Type": "apple",
+			"ApplePushUseDevelopment": true,
+			"ApplePushCertPrivate": "",
+			"ApplePushCertPassword": "",
+			"ApplePushTopic": ""
+		}
+	],
+	"AndroidPushSettings": [
+		{
+			"Tag": "dev",
+			"Default": true,
+			"Type": "android",
+			"AndroidApiKey": "AAAAdiw-Kmc:APA91bFLWWXeuqJTVRdjarhiVNRsHCCXkH0F4tsdkSNZFV7aDppZw5P91pIrYD1PUnLxA-x3O7PXJfT0yGzfqGbf6uPQxkn6K2RVydr5W3_FPMDksCQJ6EJArK5QMLVMz83B6k42odee"
+		},
+		{
+			"Tag": "internal",
+			"Type": "android",
+			"AndroidApiKey": "AAAAdiw-Kmc:APA91bFLWWXeuqJTVRdjarhiVNRsHCCXkH0F4tsdkSNZFV7aDppZw5P91pIrYD1PUnLxA-x3O7PXJfT0yGzfqGbf6uPQxkn6K2RVydr5W3_FPMDksCQJ6EJArK5QMLVMz83B6k42odee"
+		},
+		{
+			"Tag": "testing",
+			"Type": "android",
+			"AndroidApiKey": "AAAAdiw-Kmc:APA91bFLWWXeuqJTVRdjarhiVNRsHCCXkH0F4tsdkSNZFV7aDppZw5P91pIrYD1PUnLxA-x3O7PXJfT0yGzfqGbf6uPQxkn6K2RVydr5W3_FPMDksCQJ6EJArK5QMLVMz83B6k42odee"
+		}
+	]
+}

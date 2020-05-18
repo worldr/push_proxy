@@ -29,10 +29,10 @@ jobs:
       - run: make build-server
       - run: make package
       - store_artifacts:
-          path: /go/src/github.com/worldr/push-proxy/dist/mattermost-push-proxy.tar.gz
+          path: /go/src/github.com/worldr/push-proxy/dist/worldr-push-proxy.tar.gz
       - persist_to_workspace:
           root: .
-          paths: ./dist/mattermost-push-proxy.tar.gz
+          paths: ./dist/worldr-push-proxy.tar.gz
 
   publish-github-release:
     docker:

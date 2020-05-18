@@ -8,8 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/mattermost/mattermost-push-proxy/server"
+	"worldr-push-proxy/server"
 )
 
 var flagConfigFile string

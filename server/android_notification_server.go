@@ -83,7 +83,7 @@ func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) Pus
 			return NewErrorPushResponse(err.Error())
 		}
 
-		LogInfo(fmt.Sprintf("Sending android push notification for device=%v and type=%v", me.AndroidPushSettings.Type, msg.Type))
+		LogInfo(fmt.Sprintf("Sending android push notification for device=%v, type=%v, server=%v", me.AndroidPushSettings.Type, msg.Type, msg.ServerTag))
 
 		start := time.Now()
 

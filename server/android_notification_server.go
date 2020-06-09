@@ -4,6 +4,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -30,34 +31,29 @@ func (me *AndroidNotificationServer) Initialize() bool {
 	return true
 }
 
-func (me *AndroidNotificationServer) SendNotification1(msg *PushNotification) PushResponse {
-	return me.SendNotification(msg)
-}
-
 func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) PushResponse {
 	pushType := msg.Type
 	data := map[string]interface{}{
-		"ack_id":       msg.AckId,
-		"type":         pushType,
-		"badge":        msg.Badge,
-		"version":      msg.Version,
-		"channel_id":   msg.ChannelId,
+		"ack_id":  msg.AckId,
+		"type":    pushType,
+		"badge":   msg.Badge,
+		"version": msg.Version,
+		//
+		"team_id":    msg.TeamId,
+		"channel_id": msg.ChannelId,
+		"post_id":    msg.PostId,
+		"sender_id":  msg.SenderId,
+		//
+		"message":      emoji.Sprint(msg.Message),
 		"click_action": "FLUTTER_NOTIFICATION_CLICK",
 	}
 
 	if msg.IsIdLoaded {
-		data["post_id"] = msg.PostId
-		data["message"] = msg.Message
 		data["id_loaded"] = true
-		data["sender_id"] = msg.SenderId
 		data["sender_name"] = "Someone"
 	} else if pushType == PUSH_TYPE_MESSAGE {
-		data["team_id"] = msg.TeamId
-		data["sender_id"] = msg.SenderId
 		data["sender_name"] = msg.SenderName
-		data["message"] = emoji.Sprint(msg.Message)
 		data["channel_name"] = msg.ChannelName
-		data["post_id"] = msg.PostId
 		data["root_id"] = msg.RootId
 		data["override_username"] = msg.OverrideUsername
 		data["override_icon_url"] = msg.OverrideIconUrl
@@ -83,14 +79,14 @@ func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) Pus
 			return NewErrorPushResponse(err.Error())
 		}
 
-		LogInfo(fmt.Sprintf("Sending android push notification for device=%v, type=%v, server=%v", me.AndroidPushSettings.Type, msg.Type, msg.ServerTag))
+		LogInfo(fmt.Sprintf("Sending push notification for type=%v, server=%v, device=%v", msg.Type, msg.ServerTag, msg.DeviceId))
 
 		start := time.Now()
 
-		// test, testErr := json.Marshal(fcmMsg)
-		// if testErr == nil {
-		// fmt.Println(fmt.Sprintf("SendNotification: %s", string(test)))
-		// }
+		test, testErr := json.Marshal(fcmMsg)
+		if testErr == nil {
+			fmt.Println(fmt.Sprintf("SendNotification: %s", string(test)))
+		}
 
 		resp, err := sender.SendWithRetry(fcmMsg, 2)
 		observerNotificationResponse(PUSH_NOTIFY_ANDROID, time.Since(start).Seconds())

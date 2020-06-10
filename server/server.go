@@ -28,7 +28,6 @@ const (
 
 type NotificationServer interface {
 	SendNotification(msg *PushNotification) PushResponse
-	SendNotification1(msg *PushNotification) PushResponse
 	Initialize() bool
 }
 

@@ -6,6 +6,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	fcm "github.com/appleboy/go-fcm"
@@ -39,7 +40,6 @@ func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) Pus
 		"badge":   msg.Badge,
 		"version": msg.Version,
 		//
-		"team_id":    msg.TeamId,
 		"channel_id": msg.ChannelId,
 		"post_id":    msg.PostId,
 		"sender_id":  msg.SenderId,
@@ -60,6 +60,10 @@ func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) Pus
 		data["from_webhook"] = msg.FromWebhook
 	}
 
+	if len(msg.OverrideUsername) > 0 {
+		data["sender_name"] = msg.OverrideUsername
+	}
+
 	incrementNotificationTotal(PUSH_NOTIFY_ANDROID, pushType)
 
 	fcmMsg := &fcm.Message{
@@ -67,10 +71,22 @@ func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) Pus
 		Data:     data,
 		Priority: "high",
 	}
-	(*fcmMsg).Notification = &fcm.Notification{
-		Title: fmt.Sprintf("New message in %s", msg.ChannelName),
-		Body:  emoji.Sprint(msg.Message),
+	n := fcm.Notification{}
+	(*fcmMsg).Notification = &n
+
+	if msg.Badge > 0 {
+		n.Badge = strconv.Itoa(msg.Badge)
 	}
+
+	if msg.ChannelType == "D" {
+		n.Title = "New direct message"
+		n.Body = fmt.Sprintf("%s: %s", data["sender_name"], emoji.Sprint(msg.Message))
+	} else {
+		n.Title = fmt.Sprintf("New message in %s", msg.ChannelName)
+		n.Body = emoji.Sprint(msg.Message)
+	}
+
+	logInvalidFields(msg, &n)
 
 	if len(me.AndroidPushSettings.AndroidApiKey) > 0 {
 		sender, err := fcm.NewClient(me.AndroidPushSettings.AndroidApiKey)
@@ -118,4 +134,19 @@ func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) Pus
 		incrementSuccess(PUSH_NOTIFY_ANDROID, pushType)
 	}
 	return NewOkPushResponse()
+}
+
+func logInvalidFields(msg *PushNotification, n *fcm.Notification) {
+	if len(msg.ChannelName) == 0 {
+		LogError(fmt.Sprintf("Channel name is empty: %+v, %+v, %+v, %+v", msg.ChannelId, msg.SenderId, msg.PostId, msg.IsIdLoaded))
+	}
+	if len(msg.SenderName) == 0 {
+		LogError(fmt.Sprintf("Sender name is empty: %+v, %+v, %+v, %+v", msg.ChannelId, msg.SenderId, msg.PostId, msg.IsIdLoaded))
+	}
+	if len(msg.SenderId) == 0 {
+		LogError(fmt.Sprintf("Sender id is empty: %+v, %+v, %+v, %+v", msg.ChannelId, msg.SenderId, msg.PostId, msg.IsIdLoaded))
+	}
+	if len(n.Body) == 0 {
+		LogError(fmt.Sprintf("Notification body is empty: %+v, %+v, %+v, %+v", msg.ChannelId, msg.SenderId, msg.PostId, msg.IsIdLoaded))
+	}
 }

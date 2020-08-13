@@ -81,6 +81,10 @@ func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) Pus
 		}
 	}
 
+	if len(msg.OverrideUsername) > 0 {
+		data["sender_name"] = msg.OverrideUsername
+	}
+
 	incrementNotificationTotal(PUSH_NOTIFY_ANDROID, pushType)
 
 	fcmMsg := &fcm.Message{

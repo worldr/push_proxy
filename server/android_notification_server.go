@@ -35,58 +35,65 @@ func (me *AndroidNotificationServer) Initialize() bool {
 func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) PushResponse {
 	pushType := msg.Type
 	data := map[string]interface{}{
-		"ack_id":  msg.AckId,
-		"type":    pushType,
-		"badge":   msg.Badge,
-		"version": msg.Version,
-		//
+		"ack_id":     msg.AckId,
+		"type":       pushType,
+		"badge":      msg.Badge,
+		"version":    msg.Version,
 		"channel_id": msg.ChannelId,
-		"post_id":    msg.PostId,
-		"sender_id":  msg.SenderId,
-		//
-		"message":      emoji.Sprint(msg.Message),
-		"click_action": "FLUTTER_NOTIFICATION_CLICK",
-	}
-
-	if msg.IsIdLoaded {
-		data["id_loaded"] = true
-		data["sender_name"] = "Someone"
-	} else if pushType == PUSH_TYPE_MESSAGE {
-		data["sender_name"] = msg.SenderName
-		data["channel_name"] = msg.ChannelName
-		data["root_id"] = msg.RootId
-		data["override_username"] = msg.OverrideUsername
-		data["override_icon_url"] = msg.OverrideIconUrl
-		data["from_webhook"] = msg.FromWebhook
-	}
-
-	if len(msg.OverrideUsername) > 0 {
-		data["sender_name"] = msg.OverrideUsername
-	}
-
-	incrementNotificationTotal(PUSH_NOTIFY_ANDROID, pushType)
-
-	fcmMsg := &fcm.Message{
-		To:       msg.DeviceId,
-		Data:     data,
-		Priority: "high",
 	}
 	n := fcm.Notification{}
-	(*fcmMsg).Notification = &n
 
 	if msg.Badge > 0 {
 		n.Badge = strconv.Itoa(msg.Badge)
 	}
 
-	if msg.ChannelType == "D" {
-		n.Title = "New direct message"
-		n.Body = fmt.Sprintf("%s: %s", data["sender_name"], emoji.Sprint(msg.Message))
-	} else {
-		n.Title = fmt.Sprintf("New message in %s", msg.ChannelName)
-		n.Body = emoji.Sprint(msg.Message)
+	hasContent := false
+	if msg.IsIdLoaded || pushType == PUSH_TYPE_MESSAGE {
+		hasContent = true
+		m := emoji.Sprint(msg.Message)
+
+		data["post_id"] = msg.PostId
+		data["sender_id"] = msg.SenderId
+		data["message"] = m
+		data["click_action"] = "FLUTTER_NOTIFICATION_CLICK"
+		if len(msg.OverrideUsername) > 0 {
+			data["sender_name"] = msg.OverrideUsername
+		}
+
+		if msg.IsIdLoaded {
+			data["id_loaded"] = true
+			data["sender_name"] = "Someone"
+		} else if pushType == PUSH_TYPE_MESSAGE {
+			data["sender_name"] = msg.SenderName
+			data["channel_name"] = msg.ChannelName
+			data["root_id"] = msg.RootId
+			data["override_username"] = msg.OverrideUsername
+			data["override_icon_url"] = msg.OverrideIconUrl
+			data["from_webhook"] = msg.FromWebhook
+		}
+
+		if msg.ChannelType == "D" {
+			n.Title = "New direct message"
+			n.Body = fmt.Sprintf("%s: %s", data["sender_name"], m)
+		} else {
+			n.Title = fmt.Sprintf("New message in %s", msg.ChannelName)
+			n.Body = m
+		}
 	}
 
-	logInvalidFields(msg, &n)
+	incrementNotificationTotal(PUSH_NOTIFY_ANDROID, pushType)
+
+	fcmMsg := &fcm.Message{
+		To:               msg.DeviceId,
+		Data:             data,
+		Priority:         "high",
+		Notification:     &n,
+		ContentAvailable: hasContent,
+	}
+
+	if pushType == PUSH_TYPE_MESSAGE {
+		logInvalidMessageFields(msg, &n)
+	}
 
 	if len(me.AndroidPushSettings.AndroidApiKey) > 0 {
 		sender, err := fcm.NewClient(me.AndroidPushSettings.AndroidApiKey)
@@ -136,7 +143,7 @@ func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) Pus
 	return NewOkPushResponse()
 }
 
-func logInvalidFields(msg *PushNotification, n *fcm.Notification) {
+func logInvalidMessageFields(msg *PushNotification, n *fcm.Notification) {
 	if len(msg.ChannelName) == 0 {
 		LogError(fmt.Sprintf("Channel name is empty: %+v, %+v, %+v, %+v", msg.ChannelId, msg.SenderId, msg.PostId, msg.IsIdLoaded))
 	}

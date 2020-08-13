@@ -19,10 +19,9 @@ require (
 	github.com/rakyll/pb v0.0.0-20160123035540-8d46b8b097ef // indirect
 	github.com/sideshow/apns2 v0.20.0
 	github.com/tylerb/graceful v1.2.15
-	golang.org/x/crypto v0.0.0-20200414173820-0848c9571904 // indirect
-	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
+	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 	golang.org/x/sys v0.0.0-20200413165638-669c56c373c4 // indirect
 	golang.org/x/text v0.3.2 // indirect
-	golang.org/x/tools v0.0.0-20200515220128-d3bf790afa53 // indirect
+	golang.org/x/tools v0.0.0-20200812231640-9176cd30088c // indirect
 	gopkg.in/throttled/throttled.v1 v1.0.0
 )

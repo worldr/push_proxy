@@ -1,27 +1,27 @@
-FROM alpine:3.10
+FROM alpine:3.11 AS downloader
 
-ENV APP_VERSION=5.9.0
-ENV PATH="/mattermost-push-proxy/bin:${PATH}"
+RUN apk add --no-cache \
+    ca-certificates \
+    libc6-compat \
+    libffi-dev \
+    linux-headers \
+    netcat-openbsd \
+    tzdata 
 
-# Install some needed packages
-RUN apk add --no-cache\
-      netcat-openbsd \
-      ca-certificates
+COPY . /worldr-push-proxy
 
-RUN mkdir -p /mattermost-push-proxy \
-    && cd /mattermost-push-proxy \
-    && wget https://github.com/mattermost/mattermost-push-proxy/releases/download/v$APP_VERSION/mattermost-push-proxy-$APP_VERSION.tar.gz \
-    && tar -xvzf mattermost-push-proxy-$APP_VERSION.tar.gz \
-    && rm mattermost-push-proxy-$APP_VERSION.tar.gz \
-    && mv mattermost-push-proxy/* ./ \
-    && rm -rf mattermost-push-proxy
+RUN set -ex && chown -R nobody:nogroup /worldr-push-proxy
 
-WORKDIR /mattermost-push-proxy
+USER nobody
 
-COPY entrypoint.sh /
+WORKDIR /worldr-push-proxy
+
+ENV PUSH_PROXY=/worldr-push-proxy/bin/worldr-push-proxy
+
+COPY docker/entrypoint.sh /usr/local/bin/
 
 EXPOSE 8066
 
-VOLUME ["/mattermost-push-proxy", "/config", "/certs"]
+VOLUME ["/worldr-push-proxy/config", "/worldr-push-proxy/certs"]
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

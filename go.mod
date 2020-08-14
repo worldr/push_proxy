@@ -22,6 +22,6 @@ require (
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 	golang.org/x/sys v0.0.0-20200413165638-669c56c373c4 // indirect
 	golang.org/x/text v0.3.2 // indirect
-	golang.org/x/tools v0.0.0-20200812231640-9176cd30088c // indirect
+	golang.org/x/tools v0.0.0-20200813231717-0a73ddcff9b8 // indirect
 	gopkg.in/throttled/throttled.v1 v1.0.0
 )

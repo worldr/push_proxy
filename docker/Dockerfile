@@ -8,9 +8,11 @@ RUN apk add --no-cache \
     netcat-openbsd \
     tzdata 
 
-COPY . /worldr-push-proxy
+COPY dist/worldr-push-proxy.tar.gz /tmp/worldr-push-proxy.tar.gz
 
-RUN set -ex && chown -R nobody:nogroup /worldr-push-proxy
+RUN set -ex \
+    && tar -xvzf /tmp/worldr-push-proxy.tar.gz --directory / \
+    && chown -R nobody:nogroup /worldr-push-proxy
 
 USER nobody
 

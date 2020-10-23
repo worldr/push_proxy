@@ -37,7 +37,7 @@ func (me *AndroidNotificationServer) SendNotification(msg *PushNotification) Pus
 	data := map[string]interface{}{
 		"ack_id":     msg.AckId,
 		"type":       pushType,
-		"badge":      msg.Badge,
+		"badge":      strconv.Itoa(msg.Badge),
 		"version":    msg.Version,
 		"channel_id": msg.ChannelId,
 	}
